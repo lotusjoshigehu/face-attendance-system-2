@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Face Recognition Attendance System</h1>
+
+    <!-- Main content container -->
+    <div id="mainContainer">
+        <!-- Left Section: Video Feed -->
+        <div id="videoContainer">
+            <img src="{{ url_for('video_feed') }}" id="video" alt="Video Feed">
+            <button id="startBtn" onclick="startAttendance()">Start Attendance</button>
+        </div>
+
+        <!-- Right Section: Student Details -->
+        <div id="attendanceDetails">
+            <div id="result"></div>
+            <div id="attendanceResults"></div>
+        </div>
+    </div>
+
+    <script>
+        function startAttendance() {
+            fetch('/start_attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.attendance) {
+                    // Display the names of students who attended
+                    const attendanceList = data.attendance.map(name => `<li>${name}</li>`).join('');
+                    document.getElementById('attendanceResults').innerHTML =
+                        `<h3>Attendance Marked:</h3><ul>${attendanceList}</ul>`;
+
+                    // Display the student details
+                    const detailsList = data.student_details.map(student => `
+                        <p><strong>Name:</strong> ${student.name}</p>
+                        <p><strong>Major:</strong> ${student.major}</p>
+                        <p><strong>Year:</strong> ${student.year}</p>
+                        <p><strong>Total Attendance:</strong> ${student['total attendance']}</p>
+                    `).join('');
+                    document.getElementById('attendanceDetails').innerHTML += detailsList;
+                } else {
+                    document.getElementById('result').innerText =
+                        "Error: " + data.error;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
